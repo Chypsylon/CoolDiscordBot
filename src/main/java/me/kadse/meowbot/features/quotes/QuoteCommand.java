@@ -25,6 +25,11 @@ public class QuoteCommand extends Command {
 
     @Override
     public void execute(TextChannel channel, MessageAuthor sender, String[] args, List<User> mentionedUsers) {
+        if (quoteManager.getQuotesMap().isEmpty()) {
+            reply(channel, "Keine Quotes gespeichert");
+            return;
+        }
+        
         try {
             long id;
 
