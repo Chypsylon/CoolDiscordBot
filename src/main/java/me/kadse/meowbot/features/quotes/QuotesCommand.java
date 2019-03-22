@@ -50,23 +50,34 @@ public class QuotesCommand extends Command {
     private EmbedBuilder showQuotes(long userId) {
         try {
             EmbedBuilder embed = new EmbedBuilder()
-                    .setAuthor(discordApi.getUserById(userId).get())
-                    .setFooter("Zeige " + quoteManager.getQuotesUsersMap().get(userId).size() + " Zitate von " + discordApi.getUserById(userId).get().getDiscriminatedName());
+                    .setAuthor(discordApi.getUserById(userId).get());
 
+            int totalCharCount = 0;
             int i = 0;
             for (Long id : quoteManager.getQuotesUsersMap().get(userId)) {
-                if (i >= 24)
+                if (i >= 24 || totalCharCount > 5000) {
                     break;
+                }
 
                 Quote quote = quoteManager.getQuotesMap().get(id);
                 String content = quote.getContent();
 
-                if (content.length() > 1000)
-                    content = content.substring(0, 1000) + " [...]";
+                if(content.trim().equals(""))
+                    continue;
+
+                if (content.length() > 500) {
+                    content = content.substring(0, 500) + " [...]";
+                    totalCharCount += (500 + " [...]".length());
+                } else {
+                    totalCharCount += content.length();
+                }
 
                 embed.addField(String.valueOf(quote.getId()), content);
                 i++;
             }
+
+            embed.setFooter("Zeige " + i + " von " + quoteManager.getQuotesUsersMap().get(userId).size() + " Zitate von " + discordApi.getUserById(userId).get().getDiscriminatedName());
+
 
             return embed;
         } catch (Exception e) {
