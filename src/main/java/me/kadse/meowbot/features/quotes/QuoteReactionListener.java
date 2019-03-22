@@ -56,7 +56,7 @@ public class QuoteReactionListener implements ReactionAddListener {
 
         EmbedBuilder embed = new EmbedBuilder()
                 .setThumbnail("https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/apple/155/toilet_1f6bd.png")
-                .setDescription("Quote " + reactionAddEvent.getMessageId() + " gelöscht!");
+                .setDescription("Quote " + quoteId + " gelöscht!");
 
         reactionAddEvent.getChannel().sendMessage(embed);
     }
