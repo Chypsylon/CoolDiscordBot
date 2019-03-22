@@ -8,6 +8,7 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 
 import java.util.List;
+import java.util.StringJoiner;
 
 public class QuotesCommand extends Command {
     private QuoteManager quoteManager;
@@ -23,8 +24,13 @@ public class QuotesCommand extends Command {
     public void execute(TextChannel channel, MessageAuthor sender, String[] args, List<User> mentionedUsers) {
         try {
             if (mentionedUsers.size() < 1) {
-                if(quoteManager.getUserIdMap().containsKey(args[0].toLowerCase())) {
-                    channel.sendMessage(showQuotes(quoteManager.getUserIdMap().get(args[0].toLowerCase())));
+                StringJoiner stringJoiner = new StringJoiner(" ");
+                for (String arg : args) {
+                    stringJoiner.add(arg);
+                }
+
+                if(quoteManager.getUserIdMap().containsKey(stringJoiner.toString().toLowerCase())) {
+                    channel.sendMessage(showQuotes(quoteManager.getUserIdMap().get(stringJoiner.toString().toLowerCase())));
                     return;
                 }
                 reply(channel, "Syntax: !quotes <@User||Username>");
