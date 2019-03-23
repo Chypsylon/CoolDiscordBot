@@ -85,7 +85,11 @@ public class QuoteManager {
         if(quotesMap.containsKey(message.getId()))
             return;
 
-        String content = message.getContent();
+        String content = message.getReadableContent();
+
+        if(message.getAttachments().size() > 0) {
+            content += " " + message.getAttachments().get(0).getUrl();
+        }
 
         if(content.length() < 1 && message.getEmbeds().size() > 0) {
             content = message.getEmbeds().get(0).getDescription().get();
@@ -119,6 +123,7 @@ public class QuoteManager {
 
     public boolean deleteQuote(long quoteId) {
         if(quotesMap.containsKey(quoteId)) {
+            quotesUsersMap.get(quotesMap.get(quoteId).getAuthor()).remove(quoteId);
             quotesMap.remove(quoteId);
         } else {
             return false;

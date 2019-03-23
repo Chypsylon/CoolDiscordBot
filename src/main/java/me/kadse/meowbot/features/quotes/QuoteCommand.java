@@ -10,6 +10,7 @@ import org.javacord.api.entity.user.User;
 
 import java.util.List;
 import java.util.Random;
+import java.util.StringJoiner;
 
 public class QuoteCommand extends Command {
     private QuoteManager quoteManager;
@@ -42,10 +43,25 @@ public class QuoteCommand extends Command {
                     return;
                 }
             } else {
-                try {
-                    id = Long.parseLong(args[0]);
-                } catch (NumberFormatException e) {
+                if(args.length == 0) {
                     id = (Long) quoteManager.getQuotesMap().keySet().toArray()[random.nextInt(quoteManager.getQuotesMap().size())];
+                } else {
+                    try {
+                        id = Long.parseLong(args[0]);
+                    } catch (NumberFormatException e) {
+                        StringJoiner stringJoiner = new StringJoiner(" ");
+                        for (String arg : args) {
+                            stringJoiner.add(arg);
+                        }
+
+                        if(quoteManager.getUserIdMap().containsKey(stringJoiner.toString().toLowerCase())) {
+                            List<Long> userQuotes = quoteManager.getQuotesUsersMap().get(quoteManager.getUserIdMap().get(stringJoiner.toString().toLowerCase()));
+                            id = userQuotes.get(random.nextInt(userQuotes.size()));
+                        } else {
+                            reply(channel, "Kein Quote gefunden! Syntax: !quote <QuoteID\\||Username\\||@User>");
+                            return;
+                        }
+                    }
                 }
             }
 

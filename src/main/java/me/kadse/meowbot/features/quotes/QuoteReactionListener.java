@@ -22,17 +22,18 @@ public class QuoteReactionListener implements ReactionAddListener {
         try {
             if (reactionAddEvent.requestMessage().get().getContent().length() < 1) {
                 if (reactionAddEvent.getEmoji().asUnicodeEmoji().get().equals(quoteConfig.deleteQuoteEmoji)) {
-                    String footer = reactionAddEvent.requestMessage().get().getEmbeds().get(0).getFooter().get().getText().get();
-                    try {
-                        if (quoteManager.getQuotesMap().containsKey(Long.parseLong(footer.split(" ")[1]))) {
-                            deleteQuote(Long.parseLong(footer.split(" ")[1]), reactionAddEvent);
-                            return;
-                        } else {
-                            return;
+                    if (reactionAddEvent.getReaction().get().getCount() >= quoteConfig.deleteQuoteCount) {
+                        String footer = reactionAddEvent.requestMessage().get().getEmbeds().get(0).getFooter().get().getText().get();
+                        try {
+                            if (quoteManager.getQuotesMap().containsKey(Long.parseLong(footer.split(" ")[1]))) {
+                                deleteQuote(Long.parseLong(footer.split(" ")[1]), reactionAddEvent);
+                                return;
+                            } else {
+                                return;
+                            }
+                        } catch (NumberFormatException e) {
+                            e.printStackTrace();
                         }
-
-                    } catch (NumberFormatException e) {
-                        e.printStackTrace();
                     }
                 }
             }
@@ -56,7 +57,7 @@ public class QuoteReactionListener implements ReactionAddListener {
 
         EmbedBuilder embed = new EmbedBuilder()
                 .setThumbnail("https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/apple/155/toilet_1f6bd.png")
-                .setDescription("Quote " + reactionAddEvent.getMessageId() + " gelöscht!");
+                .setDescription("Quote " + quoteId + " gelöscht!");
 
         reactionAddEvent.getChannel().sendMessage(embed);
     }
