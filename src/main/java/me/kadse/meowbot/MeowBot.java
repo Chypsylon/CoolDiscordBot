@@ -6,6 +6,7 @@ import me.kadse.meowbot.features.commands.AwooCommand;
 import me.kadse.meowbot.features.permissions.GetPermissionsLevelCommand;
 import me.kadse.meowbot.features.permissions.PermissionsManager;
 import me.kadse.meowbot.features.permissions.SetPermissionsLevelCommand;
+import me.kadse.meowbot.features.pressf.PressfManager;
 import me.kadse.meowbot.features.quotes.*;
 import me.kadse.meowbotframework.DiscordBot;
 import org.javacord.api.entity.activity.ActivityType;
@@ -15,6 +16,7 @@ import org.javacord.api.entity.user.UserStatus;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Scanner;
+import me.kadse.meowbot.features.pressf.PressfCommand;
 
 public class MeowBot {
     private BotConfig botConfig;
@@ -22,6 +24,7 @@ public class MeowBot {
 
     private QuoteManager quoteManager;
     private PermissionsManager permissionsManager;
+    private PressfManager pressfManager;
 
     public MeowBot() {
         botConfig = new BotConfig();
@@ -36,9 +39,11 @@ public class MeowBot {
         //Instantiate Features
         quoteManager = new QuoteManager(discordBot.getDiscordApi(), new File(quoteConfig.quotesFile));
         permissionsManager = new PermissionsManager(discordBot.getDiscordApi(), new File(botConfig.permissionsFile));
+        pressfManager = new PressfManager();
 
         //Instantiate Commands
         new AwooCommand();
+        new PressfCommand(pressfManager);
         new QuoteCommand(quoteManager, discordBot.getDiscordApi());
         new QuotesCommand(quoteManager, discordBot.getDiscordApi());
         new DeleteQuoteCommand(permissionsManager, quoteManager);
