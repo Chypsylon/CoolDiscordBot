@@ -49,6 +49,8 @@ public class PressfCommand extends Command {
             sanitizedMsg = sanitizedMsg.replace(u.getNicknameMentionTag(), u.getName());
         }
 
+        sanitizedMsg = sanitizedMsg.replace("@", "@ ");
+
         return sanitizedMsg;
     }
 
@@ -97,7 +99,7 @@ public class PressfCommand extends Command {
                 @Override
                 public void run() {
                     int amountRespectPaid = pressfManager.getActiveRespects().get(firstMessageId).size();
-                    channel.sendMessage(String.format(FINAL_MSG, amountRespectPaid, reason));
+                    channel.sendMessage(String.format(FINAL_MSG, amountRespectPaid, reasonWithoutMentions));
                 }
             }, PRESSF_DURATION_S * 1000);
 
