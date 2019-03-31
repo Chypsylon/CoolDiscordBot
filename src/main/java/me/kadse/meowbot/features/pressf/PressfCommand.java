@@ -5,19 +5,21 @@
  */
 package me.kadse.meowbot.features.pressf;
 
-import java.util.*;
+import me.kadse.meowbotframework.commands.Command;
+import org.javacord.api.entity.channel.TextChannel;
+import org.javacord.api.entity.message.Message;
+import org.javacord.api.entity.message.MessageAuthor;
+import org.javacord.api.entity.user.User;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import me.kadse.meowbotframework.commands.Command;
-import org.javacord.api.entity.channel.TextChannel;
-import org.javacord.api.entity.emoji.Emoji;
-import org.javacord.api.entity.message.Message;
-import org.javacord.api.entity.message.MessageAuthor;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.listener.message.reaction.ReactionAddListener;
 
 /**
  *
@@ -39,6 +41,17 @@ public class PressfCommand extends Command {
         this.pressfManager = pressfManager;
     }
 
+    private String replaceMentions(String msg, List<User> mentionedUsers) {
+        String sanitizedMsg = msg;
+
+        for (User u : mentionedUsers) {
+            sanitizedMsg = sanitizedMsg.replace(u.getMentionTag(), u.getName());
+            sanitizedMsg = sanitizedMsg.replace(u.getNicknameMentionTag(), u.getName());
+        }
+
+        return sanitizedMsg;
+    }
+
     @Override
     public void execute(TextChannel channel, MessageAuthor sender, String[] args, List<User> mentionedUsers) {
         String reason = String.join(" ", args).trim();
@@ -48,7 +61,9 @@ public class PressfCommand extends Command {
             return;
         }
 
-        CompletableFuture<Message> firstMessageFuture = channel.sendMessage(String.format(PRESSF_CONFIRMATION_MSG, reason));
+        String reasonWithoutMentions = replaceMentions(reason, mentionedUsers);
+
+        CompletableFuture<Message> firstMessageFuture = channel.sendMessage(String.format(PRESSF_CONFIRMATION_MSG, reasonWithoutMentions));
         try {
             Message firstMessage = firstMessageFuture.get();
 
@@ -61,7 +76,8 @@ public class PressfCommand extends Command {
             firstMessage.addReactionAddListener(reactionAddEvent -> {
                 if (reactionAddEvent.getEmoji().equalsEmoji(RESPECT_EMOJI) && !reactionAddEvent.getUser().isYourself()) {
                     try {
-                        Message userReactedMessage = reactionAddEvent.getChannel().sendMessage(String.format(PAID_RESPECT_MSG, reactionAddEvent.getUser().getDisplayName(reactionAddEvent.getServer().get()), reason)).get();
+                        Message userReactedMessage = reactionAddEvent.getChannel().sendMessage(
+                                String.format(PAID_RESPECT_MSG, reactionAddEvent.getUser().getDisplayName(reactionAddEvent.getServer().get()), reasonWithoutMentions)).get();
                         pressfManager.getActiveRespects().get(firstMessageId).put(reactionAddEvent.getUser().getId(), userReactedMessage);
                     } catch (InterruptedException | ExecutionException e) {
                         e.printStackTrace();
